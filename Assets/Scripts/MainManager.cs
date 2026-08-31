@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.InputSystem; // MIGRATED: New Input System namespace
+using UnityEngine.InputSystem;
+using UnityEditor.Overlays;
+using System.IO; // MIGRATED: New Input System namespace
 
 public class MainManager : MonoBehaviour
 {
     public Brick BrickPrefab;
     public int LineCount = 6;
+    public int highScore = 0;
+    public string bestPlayerName;
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
 
     private bool m_Started = false;
@@ -43,6 +48,8 @@ public class MainManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        LoadHighScore();
+        HighScoreText.text = "High Score : " + bestPlayerName + " : "  + highScore;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
 
@@ -93,5 +100,37 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (m_Points > highScore) {
+            SaveHighScore(MenuManager.Instance.playerName, m_Points);
+        }
+    }
+    [System.Serializable]
+    class SaveData
+    {
+        public string bestPlayerName;
+        public int highScore;
+    }
+    public void SaveHighScore(string name, int score)
+    {
+        SaveData data = new SaveData();
+        data.bestPlayerName = name;
+        data.highScore = score;
+
+        string json = JsonUtility.ToJson(data);
+
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+    }
+
+    public void LoadHighScore()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            highScore = data.highScore;
+            bestPlayerName = data.bestPlayerName;
+        }
     }
 }

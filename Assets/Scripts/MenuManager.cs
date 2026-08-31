@@ -1,25 +1,27 @@
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MenuManager : MonoBehaviour
 {
+    public string playerName;
+    public static MenuManager Instance;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
-        
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void StartNew()
     {
-        Debug.Log("button clicked");
         SceneManager.LoadScene(1);
-        
     }
 
-    // Update is called once per frame
-    void Update()
+    public void grabPlayerName(string name)
     {
-        
+        playerName = name;
     }
+
 }
